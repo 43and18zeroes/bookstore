@@ -39,8 +39,15 @@ class UserBookDetailUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Book.objects.filter(author=self.request.user)
 
-class UnpublishBookView(generics.DestroyAPIView):
+class UnpublishBookView(generics.UpdateAPIView):
+    serializer_class = BookSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Book.objects.filter(author=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        book = self.get_object()
+        book.is_published = False
+        book.save()
+        return Response({'status': 'unpublished'}, status=status.HTTP_200_OK)
